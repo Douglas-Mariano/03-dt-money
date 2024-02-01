@@ -15,6 +15,14 @@
             "category": "Alimentação",
             "price": 50,
             "createdAt": "2024-01-25T14:52:45.448Z"
+        },
+        {
+            "id": 3,
+            "description": "Ignite-Curso",
+            "type": "outcome",
+            "category": "Educação",
+            "price": 1500,
+            "createdAt": "2024-01-27T14:52:45.448Z"
         }
     ]
 }

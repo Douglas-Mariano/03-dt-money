@@ -20,7 +20,6 @@ interface CreateTransactionInput {
 
 interface TransactionContextType {
   transactions: Transaction[]
-  searchResults: Transaction[]
   fetchTransactions: (query?: string) => Promise<void>
   createTransaction: (data: CreateTransactionInput) => Promise<void>
 }
@@ -33,7 +32,6 @@ export const TransactionsContext = createContext({} as TransactionContextType)
 
 export function TransactionsProvider({ children }: TransactionsProviderProps) {
   const [transactions, setTransactions] = useState<Transaction[]>([])
-  const [searchResults, setSearchResults] = useState<Transaction[]>([])
 
   const fetchTransactions = useCallback(async (query?: string) => {
     const response = await api.get('transactions', {
@@ -42,12 +40,7 @@ export function TransactionsProvider({ children }: TransactionsProviderProps) {
         q: query,
       },
     })
-
     setTransactions(response.data)
-
-    if (query) {
-      setSearchResults(response.data)
-    }
   }, [])
 
   const createTransaction = useCallback(
@@ -63,9 +56,6 @@ export function TransactionsProvider({ children }: TransactionsProviderProps) {
       })
 
       setTransactions((state) => [response.data, ...state])
-
-      // Atualiza os resultados de busca se houver uma busca ativa
-      setSearchResults((state) => [response.data, ...state])
     },
     [],
   )
@@ -78,7 +68,6 @@ export function TransactionsProvider({ children }: TransactionsProviderProps) {
     <TransactionsContext.Provider
       value={{
         transactions,
-        searchResults,
         fetchTransactions,
         createTransaction,
       }}

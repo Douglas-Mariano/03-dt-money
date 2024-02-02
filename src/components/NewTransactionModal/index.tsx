@@ -10,7 +10,8 @@ import { X, ArrowCircleUp, ArrowCircleDown } from "phosphor-react";
 import * as z from "zod";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { api } from "../../lib/axios";
+import { useContext } from "react";
+import { TransactionsContext } from "../../contexts/TransactionsContext";
 
 const newTransactionFormSchema = z.object({
   description: z.string(),
@@ -22,6 +23,7 @@ const newTransactionFormSchema = z.object({
 type NewTransactionFormInputs = z.infer<typeof newTransactionFormSchema>;
 
 export function NewTransactionModal() {
+  const { createTrasaction } = useContext(TransactionsContext)
   const {
     control,
     register,
@@ -35,13 +37,13 @@ export function NewTransactionModal() {
   async function handleCreateNewTransaction(data: NewTransactionFormInputs) {
     const { description, price, category, type } = data;
 
-    await api.post('transactions', {
+    await createTrasaction({
       description,
       price,
       category,
       type,
-      createdAt: new Date(),
     })
+    
     reset();
   }
 

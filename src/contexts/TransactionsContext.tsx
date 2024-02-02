@@ -20,8 +20,9 @@ interface CreateTransactionInput {
 
 interface TransactionContextType {
   transactions: Transaction[]
+  searchResults: Transaction[]
   fetchTransactions: (query?: string) => Promise<void>
-  createTrasaction: (data: CreateTransactionInput) => Promise<void>
+  createTransaction: (data: CreateTransactionInput) => Promise<void>
 }
 
 interface TransactionsProviderProps {
@@ -32,6 +33,7 @@ export const TransactionsContext = createContext({} as TransactionContextType)
 
 export function TransactionsProvider({ children }: TransactionsProviderProps) {
   const [transactions, setTransactions] = useState<Transaction[]>([])
+  const [searchResults, setSearchResults] = useState<Transaction[]>([])
 
   const fetchTransactions = useCallback(async (query?: string) => {
     const response = await api.get('transactions', {
@@ -40,21 +42,33 @@ export function TransactionsProvider({ children }: TransactionsProviderProps) {
         q: query,
       },
     })
+
     setTransactions(response.data)
+
+    if (query) {
+      setSearchResults(response.data)
+    }
   }, [])
 
-  const createTrasaction = useCallback(async (data: CreateTransactionInput) => {
-    const { description, price, category, type } = data
+  const createTransaction = useCallback(
+    async (data: CreateTransactionInput) => {
+      const { description, price, category, type } = data
 
-    const response = await api.post('transactions', {
-      description,
-      price,
-      category,
-      type,
-      createdAt: new Date(),
-    })
-    setTransactions((state) => [response.data, ...state])
-  }, [])
+      const response = await api.post('transactions', {
+        description,
+        price,
+        category,
+        type,
+        createdAt: new Date(),
+      })
+
+      setTransactions((state) => [response.data, ...state])
+
+      // Atualiza os resultados de busca se houver uma busca ativa
+      setSearchResults((state) => [response.data, ...state])
+    },
+    [],
+  )
 
   useEffect(() => {
     fetchTransactions()
@@ -64,8 +78,9 @@ export function TransactionsProvider({ children }: TransactionsProviderProps) {
     <TransactionsContext.Provider
       value={{
         transactions,
+        searchResults,
         fetchTransactions,
-        createTrasaction,
+        createTransaction,
       }}
     >
       {children}
